@@ -1,169 +1,154 @@
 let allData = [];
-let revenueChart = null;
+let revenueChart;
 
-// Load CSV data
+const searchInput = document.getElementById('searchInput');
+const typeFilter = document.getElementById('typeFilter');
+const sortOrder = document.getElementById('sortOrder');
+const resetButton = document.getElementById('resetButton');
+const resultCount = document.getElementById('resultCount');
+const tableBody = document.querySelector('#dataTable tbody');
+const chartCanvas = document.getElementById('revenueChart');
+const chartMessage = document.getElementById('chartMessage');
+
+// Load the CSV file
 Papa.parse('musicrevenue.csv', {
     download: true,
     header: true,
     skipEmptyLines: true,
 
     complete: function(results) {
-        if (results.errors.length > 0) {
-            console.warn('CSV parsing warnings:', results.errors);
-        }
+        allData = results.data.filter(row =>
+            row.Platform &&
+            row.PayoutPerStreamUSD !== '' &&
+            Number.isFinite(Number(row.PayoutPerStreamUSD))
+        );
 
-        allData = results.data.filter(row => {
-            return row.Platform &&
-                Number.isFinite(Number(row.PayoutPerStreamUSD));
-        });
-
-        console.log('CSV data loaded successfully');
-        console.log(allData);
-
-        // Display all data when the page first loads
+        console.log('Data loaded:', allData);
         updateDashboard();
     },
 
     error: function(error) {
-        console.error('Failed to load CSV:', error);
-
-        document.getElementById('resultCount').textContent =
-            'Unable to load data. Please refresh the page.';
+        console.error('Error loading CSV:', error);
+        resultCount.textContent = 'Could not load the data.';
     }
 });
 
-// Connect the controls
-document.getElementById('searchInput').addEventListener('input', updateDashboard);
+// Search, filter and sort
+searchInput.addEventListener('input', updateDashboard);
+typeFilter.addEventListener('change', updateDashboard);
+sortOrder.addEventListener('change', updateDashboard);
 
-document.getElementById('typeFilter').addEventListener('change', updateDashboard);
-
-document.getElementById('sortOrder').addEventListener('change', updateDashboard);
-
-document.getElementById('resetButton').addEventListener('click', function() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('typeFilter').value = 'all';
-    document.getElementById('sortOrder').value = 'default';
+resetButton.addEventListener('click', function() {
+    searchInput.value = '';
+    typeFilter.value = 'all';
+    sortOrder.value = 'default';
 
     updateDashboard();
 });
 
-// Filter and sort data
 function updateDashboard() {
-    const searchText = document.getElementById('searchInput')
-        .value.toLowerCase().trim();
+    const search = searchInput.value.toLowerCase().trim();
+    const type = typeFilter.value;
+    const sort = sortOrder.value;
 
-    const selectedType = document.getElementById('typeFilter').value;
+    let data = allData.filter(row => {
+        const matchesName = row.Platform.toLowerCase().includes(search);
+        const matchesType = type === 'all' || row.Type === type;
 
-    const sortOrder = document.getElementById('sortOrder').value;
-
-    let filteredData = allData.filter(row => {
-        const platformName = row.Platform.toLowerCase();
-
-        const matchesSearch = platformName.includes(searchText);
-
-        const matchesType = selectedType === 'all' ||
-            row.Type === selectedType;
-
-        return matchesSearch && matchesType;
+        return matchesName && matchesType;
     });
 
-    if (sortOrder === 'high') {
-        filteredData.sort((a, b) =>
-            Number(b.PayoutPerStreamUSD) -
-            Number(a.PayoutPerStreamUSD)
+    if (sort === 'high') {
+        data.sort((a, b) =>
+            Number(b.PayoutPerStreamUSD) - Number(a.PayoutPerStreamUSD)
+        );
+    } else if (sort === 'low') {
+        data.sort((a, b) =>
+            Number(a.PayoutPerStreamUSD) - Number(b.PayoutPerStreamUSD)
         );
     }
 
-    if (sortOrder === 'low') {
-        filteredData.sort((a, b) =>
-            Number(a.PayoutPerStreamUSD) -
-            Number(b.PayoutPerStreamUSD)
-        );
-    }
+    resultCount.textContent =
+        `Showing ${data.length} of ${allData.length} platforms`;
 
-    updateTable(filteredData);
-    updateChart(filteredData);
-
-    document.getElementById('resultCount').textContent =
-        `Showing ${filteredData.length} of ${allData.length} platforms`;
+    updateTable(data);
+    updateChart(data);
 }
 
-// Update HTML table
+// Display the table
 function updateTable(data) {
-    const tbody = document.querySelector('#dataTable tbody');
-
-    tbody.innerHTML = '';
+    tableBody.innerHTML = '';
 
     if (data.length === 0) {
-        const tr = document.createElement('tr');
-        const td = document.createElement('td');
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
 
-        td.colSpan = 5;
-        td.textContent = 'No matching platforms found.';
-        td.style.textAlign = 'center';
+        cell.colSpan = 5;
+        cell.textContent = 'No matching platforms found.';
+        cell.className = 'empty-message';
 
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-
+        row.appendChild(cell);
+        tableBody.appendChild(row);
         return;
     }
 
-    data.forEach(row => {
-        const tr = document.createElement('tr');
+    data.forEach(platform => {
+        const row = document.createElement('tr');
 
         const values = [
-            row.Platform,
-            row.PayoutPerStreamUSD,
-            row.MonthlyUsersMillions,
-            row.Type,
-            row.StreamsForUSMonthlyMinimumWage
+            platform.Platform,
+            platform.PayoutPerStreamUSD,
+            platform.MonthlyUsersMillions,
+            platform.Type,
+            platform.StreamsForUSMonthlyMinimumWage
         ];
 
         values.forEach(value => {
-            const td = document.createElement('td');
-
-            td.textContent = value ?? '';
-
-            tr.appendChild(td);
+            const cell = document.createElement('td');
+            cell.textContent = value ?? '';
+            row.appendChild(cell);
         });
 
-        tbody.appendChild(tr);
+        tableBody.appendChild(row);
     });
 }
 
-// Update Chart.js bar chart
+// Display the bar chart
 function updateChart(data) {
-    const platforms = data.map(row => row.Platform);
+    const names = data.map(row => row.Platform);
 
     const payouts = data.map(row =>
         Number(row.PayoutPerStreamUSD)
     );
 
-    // Update the existing chart
-    if (revenueChart !== null) {
-        revenueChart.data.labels = platforms;
-        revenueChart.data.datasets[0].data = payouts;
-        revenueChart.update();
-
+    if (data.length === 0) {
+        chartCanvas.hidden = true;
+        chartMessage.hidden = false;
         return;
     }
 
-    // Create the chart for the first time
-    const canvas = document.getElementById('revenueChart');
+    chartCanvas.hidden = false;
+    chartMessage.hidden = true;
 
-    revenueChart = new Chart(canvas, {
+    if (revenueChart) {
+        revenueChart.data.labels = names;
+        revenueChart.data.datasets[0].data = payouts;
+        revenueChart.update();
+        return;
+    }
+
+    revenueChart = new Chart(chartCanvas, {
         type: 'bar',
 
         data: {
-            labels: platforms,
-
+            labels: names,
             datasets: [{
                 label: 'Payout per Stream (USD)',
                 data: payouts,
-                backgroundColor: '#7766cc',
-                borderColor: '#403a78',
+                backgroundColor: '#8272c9',
+                borderColor: '#55458e',
                 borderWidth: 1,
-                borderRadius: 5
+                borderRadius: 4
             }]
         },
 
@@ -175,7 +160,6 @@ function updateChart(data) {
                 legend: {
                     display: false
                 },
-
                 tooltip: {
                     callbacks: {
                         label: function(context) {
@@ -190,17 +174,15 @@ function updateChart(data) {
             scales: {
                 y: {
                     beginAtZero: true,
-
                     title: {
                         display: true,
                         text: 'Payout per Stream (USD)'
                     }
                 },
-
                 x: {
                     title: {
                         display: true,
-                        text: 'Music Streaming Platform'
+                        text: 'Music Platform'
                     }
                 }
             }
