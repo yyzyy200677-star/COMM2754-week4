@@ -1,21 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Music Revenue Data</title>
 
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script src="script.js" defer></script>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+
     <h1>Music Revenue Data</h1>
 
     <p>
         Comparing music streaming platforms and their payments to artists.
     </p>
+
+    <h2>Music Streaming Platform Data</h2>
 
     <table id="dataTable">
         <thead>
@@ -27,15 +35,29 @@
                 <th>Streams for US Monthly Minimum Wage</th>
             </tr>
         </thead>
+
         <tbody></tbody>
     </table>
 
+    <h2>Payout per Stream Comparison</h2>
+
+    <p>
+        This chart compares the estimated amount paid to artists
+        for each stream across different music platforms.
+    </p>
+
+    <div class="chart-container">
+        <canvas id="revenueChart"></canvas>
+    </div>
+
     <p class="source">
         Data source:
-        <a href="https://artistpayout.com/" target="_blank" rel="noopener noreferrer">
+        <a href="https://artistpayout.com/"
+           target="_blank"
+           rel="noopener noreferrer">
             Artist Payout
         </a>
     </p>
+
 </body>
 </html>
-
