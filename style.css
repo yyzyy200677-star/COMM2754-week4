@@ -3,109 +3,117 @@
 }
 
 body {
+    margin: 0;
     font-family: Arial, Helvetica, sans-serif;
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 0 24px;
-    background-color: #f6f7fb;
-    color: #25263a;
+    background: #f7f7fb;
+    color: #28283a;
     line-height: 1.6;
 }
 
+header,
+main {
+    max-width: 1200px;
+    margin: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+header {
+    padding-top: 45px;
+    padding-bottom: 15px;
+}
+
+main {
+    padding-bottom: 60px;
+}
+
 h1 {
-    color: #37316b;
+    color: #38316d;
     font-size: 36px;
-    margin-bottom: 10px;
+    margin: 0 0 10px;
 }
 
 h2 {
     font-size: 24px;
-    margin-top: 34px;
-    margin-bottom: 14px;
+    margin-top: 32px;
+    margin-bottom: 12px;
 }
 
 p {
-    color: #55566b;
+    color: #5b5b6b;
 }
 
-/* Search and filter controls */
+/* Search and filters */
 
 .controls {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-end;
-    gap: 16px;
-    margin: 24px 0 18px;
-    padding: 24px;
+    align-items: end;
+    gap: 15px;
+    padding: 20px;
+    margin: 22px 0;
     background: white;
-    border: 1px solid #e8e7f0;
-    border-radius: 14px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e5e4ec;
+    border-radius: 10px;
 }
 
-.control-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.controls > div {
     flex: 1;
     min-width: 180px;
 }
 
-.control-group label {
-    font-size: 13px;
-    font-weight: bold;
-    color: #403a78;
-}
-
-.control-group input,
-.control-group select {
-    width: 100%;
-    height: 44px;
-    padding: 10px 12px;
-    border: 1px solid #d8d7e3;
-    border-radius: 8px;
-    background: #fff;
-    color: #25263a;
+label {
+    display: block;
     font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 7px;
 }
 
-.control-group input:focus,
-.control-group select:focus {
-    outline: 2px solid #7766cc;
-    outline-offset: 1px;
+input,
+select {
+    width: 100%;
+    height: 42px;
+    padding: 9px 10px;
+    font-size: 14px;
+    border: 1px solid #ceccd8;
+    border-radius: 6px;
+    background: white;
 }
 
-#resetButton {
-    height: 44px;
-    padding: 0 20px;
+input:focus,
+select:focus,
+button:focus-visible {
+    outline: 2px solid #8272c9;
+    outline-offset: 2px;
+}
+
+button {
+    height: 42px;
+    padding: 0 22px;
     border: none;
-    border-radius: 8px;
-    background: #403a78;
+    border-radius: 6px;
+    background: #514585;
     color: white;
     font-size: 14px;
-    font-weight: bold;
     cursor: pointer;
-    transition: background 0.2s;
 }
 
-#resetButton:hover {
-    background: #6558b7;
+button:hover {
+    background: #7062a8;
 }
 
 #resultCount {
     font-size: 14px;
+    color: #514585;
     font-weight: bold;
-    color: #51459a;
-    margin: 18px 0;
 }
 
 /* Data table */
 
 .table-wrapper {
-    width: 100%;
     overflow-x: auto;
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 table {
@@ -115,55 +123,66 @@ table {
 }
 
 th {
-    background-color: #403a78;
+    background: #403a78;
     color: white;
-    padding: 16px 14px;
     text-align: left;
+    padding: 15px;
     font-size: 14px;
 }
 
 td {
-    padding: 14px;
-    border-bottom: 1px solid #e9e9f0;
+    padding: 13px 15px;
+    border-bottom: 1px solid #e8e8ef;
     font-size: 14px;
 }
 
 tbody tr:nth-child(even) {
-    background-color: #f4f3fa;
+    background: #f2f0f8;
 }
 
 tbody tr:hover {
-    background-color: #e8e3ff;
+    background: #e9e5f7;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 22px;
 }
 
 /* Chart */
 
 .chart-container {
     position: relative;
-    width: 100%;
-    height: 430px;
+    height: 420px;
     margin: 24px 0 30px;
+}
+
+#chartMessage {
+    text-align: center;
+    padding: 35px;
+    color: #777;
 }
 
 .source {
     font-size: 13px;
-    margin-top: 24px;
+    margin-top: 25px;
 }
 
 .source a {
-    color: #51459a;
+    color: #514585;
 }
 
-/* Mobile layout */
+/* Smaller screens */
 
 @media (max-width: 700px) {
-    body {
-        margin: 20px auto;
-        padding: 0 12px;
+    header,
+    main {
+        padding-left: 15px;
+        padding-right: 15px;
     }
 
     h1 {
-        font-size: 28px;
+        font-size: 29px;
     }
 
     h2 {
@@ -173,23 +192,23 @@ tbody tr:hover {
     .controls {
         flex-direction: column;
         align-items: stretch;
-        padding: 18px;
     }
 
-    .control-group {
-        min-width: 0;
+    .controls > div {
         width: 100%;
+        min-width: 0;
+        flex: none;
     }
 
-    #resetButton {
+    button {
         width: 100%;
     }
 
     table {
-        min-width: 800px;
+        min-width: 850px;
     }
 
     .chart-container {
-        height: 350px;
+        height: 340px;
     }
 }
