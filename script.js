@@ -1,29 +1,30 @@
 let allData = [];
-let revenueChart;
+let revenueChart = null;
 
 const searchInput = document.getElementById('searchInput');
 const typeFilter = document.getElementById('typeFilter');
 const sortOrder = document.getElementById('sortOrder');
 const resetButton = document.getElementById('resetButton');
+
 const resultCount = document.getElementById('resultCount');
 const tableBody = document.querySelector('#dataTable tbody');
 const chartCanvas = document.getElementById('revenueChart');
 const chartMessage = document.getElementById('chartMessage');
 
-// Load the CSV file
+// Load the CSV data
 Papa.parse('musicrevenue.csv', {
     download: true,
     header: true,
     skipEmptyLines: true,
 
     complete: function(results) {
-        allData = results.data.filter(row =>
-            row.Platform &&
-            row.PayoutPerStreamUSD !== '' &&
-            Number.isFinite(Number(row.PayoutPerStreamUSD))
-        );
+        allData = results.data.filter(row => {
+            return row.Platform &&
+                row.PayoutPerStreamUSD !== '' &&
+                Number.isFinite(Number(row.PayoutPerStreamUSD));
+        });
 
-        console.log('Data loaded:', allData);
+        console.log('CSV loaded:', allData);
         updateDashboard();
     },
 
@@ -33,7 +34,7 @@ Papa.parse('musicrevenue.csv', {
     }
 });
 
-// Search, filter and sort
+// Filter controls
 searchInput.addEventListener('input', updateDashboard);
 typeFilter.addEventListener('change', updateDashboard);
 sortOrder.addEventListener('change', updateDashboard);
@@ -46,25 +47,31 @@ resetButton.addEventListener('click', function() {
     updateDashboard();
 });
 
+// Search, filter and sort data
 function updateDashboard() {
     const search = searchInput.value.toLowerCase().trim();
-    const type = typeFilter.value;
-    const sort = sortOrder.value;
+    const selectedType = typeFilter.value;
+    const selectedSort = sortOrder.value;
 
     let data = allData.filter(row => {
-        const matchesName = row.Platform.toLowerCase().includes(search);
-        const matchesType = type === 'all' || row.Type === type;
+        const matchesSearch =
+            row.Platform.toLowerCase().includes(search);
 
-        return matchesName && matchesType;
+        const matchesType =
+            selectedType === 'all' || row.Type === selectedType;
+
+        return matchesSearch && matchesType;
     });
 
-    if (sort === 'high') {
+    if (selectedSort === 'high') {
         data.sort((a, b) =>
-            Number(b.PayoutPerStreamUSD) - Number(a.PayoutPerStreamUSD)
+            Number(b.PayoutPerStreamUSD) -
+            Number(a.PayoutPerStreamUSD)
         );
-    } else if (sort === 'low') {
+    } else if (selectedSort === 'low') {
         data.sort((a, b) =>
-            Number(a.PayoutPerStreamUSD) - Number(b.PayoutPerStreamUSD)
+            Number(a.PayoutPerStreamUSD) -
+            Number(b.PayoutPerStreamUSD)
         );
     }
 
@@ -75,7 +82,7 @@ function updateDashboard() {
     updateChart(data);
 }
 
-// Display the table
+// Update the table
 function updateTable(data) {
     tableBody.innerHTML = '';
 
@@ -113,7 +120,7 @@ function updateTable(data) {
     });
 }
 
-// Display the bar chart
+// Update the chart
 function updateChart(data) {
     const names = data.map(row => row.Platform);
 
@@ -122,15 +129,15 @@ function updateChart(data) {
     );
 
     if (data.length === 0) {
-        chartCanvas.hidden = true;
+        chartCanvas.style.display = 'none';
         chartMessage.hidden = false;
         return;
     }
 
-    chartCanvas.hidden = false;
+    chartCanvas.style.display = 'block';
     chartMessage.hidden = true;
 
-    if (revenueChart) {
+    if (revenueChart !== null) {
         revenueChart.data.labels = names;
         revenueChart.data.datasets[0].data = payouts;
         revenueChart.update();
@@ -142,13 +149,19 @@ function updateChart(data) {
 
         data: {
             labels: names,
+
             datasets: [{
                 label: 'Payout per Stream (USD)',
                 data: payouts,
+
                 backgroundColor: '#8272c9',
                 borderColor: '#55458e',
                 borderWidth: 1,
-                borderRadius: 4
+                borderRadius: 4,
+
+                maxBarThickness: 55,
+                categoryPercentage: 0.75,
+                barPercentage: 0.8
             }]
         },
 
@@ -160,6 +173,7 @@ function updateChart(data) {
                 legend: {
                     display: false
                 },
+
                 tooltip: {
                     callbacks: {
                         label: function(context) {
@@ -174,11 +188,19 @@ function updateChart(data) {
             scales: {
                 y: {
                     beginAtZero: true,
+
                     title: {
                         display: true,
                         text: 'Payout per Stream (USD)'
+                    },
+
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + Number(value).toFixed(4);
+                        }
                     }
                 },
+
                 x: {
                     title: {
                         display: true,
