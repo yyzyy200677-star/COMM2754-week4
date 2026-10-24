@@ -1,1 +1,4 @@
-
+Platform,PayoutPerStreamUSD,MonthlyUsersMillions,Type,StreamsForUSMonthlyMinimumWage
+Spotify,0.0035,760,Streaming,352000
+Apple Music,0.008,100,Streaming,154000
+YouTube Music,0.002,125,Streaming,616000
