@@ -1,107 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Music Revenue Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
 
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js" defer></script>
-
-    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <header>
+        <h1>Music Revenue Dashboard</h1>
+        <p>Exploring how different music streaming platforms pay artists.</p>
+    </header>
 
-    <h1>Music Revenue Dashboard</h1>
+    <main>
+        <h2>Explore the Data</h2>
 
-    <p>
-        Explore music streaming platforms and compare
-        how much artists earn per stream.
-    </p>
+        <div class="controls">
+            <div>
+                <label for="searchInput">Search Platform</label>
+                <input type="text" id="searchInput" placeholder="Search by name">
+            </div>
 
-    <h2>Explore the Data</h2>
+            <div>
+                <label for="typeFilter">Platform Type</label>
+                <select id="typeFilter">
+                    <option value="all">All Types</option>
+                    <option value="Freemium">Freemium</option>
+                    <option value="Subscription">Subscription</option>
+                </select>
+            </div>
 
-    <div class="controls">
+            <div>
+                <label for="sortOrder">Sort by Payout</label>
+                <select id="sortOrder">
+                    <option value="default">Original Order</option>
+                    <option value="high">Highest First</option>
+                    <option value="low">Lowest First</option>
+                </select>
+            </div>
 
-        <div class="control-group">
-            <label for="searchInput">Search Platform</label>
-
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="e.g. Spotify"
-            >
+            <button id="resetButton" type="button">Reset</button>
         </div>
 
-        <div class="control-group">
-            <label for="typeFilter">Platform Type</label>
+        <p id="resultCount" aria-live="polite">Loading data...</p>
 
-            <select id="typeFilter">
-                <option value="all">All Types</option>
-                <option value="Freemium">Freemium</option>
-                <option value="Subscription">Subscription</option>
-            </select>
+        <div class="table-wrapper">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Platform</th>
+                        <th>Payout per Stream (USD)</th>
+                        <th>Monthly Users (millions)</th>
+                        <th>Type</th>
+                        <th>Streams for US Monthly Minimum Wage</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
 
-        <div class="control-group">
-            <label for="sortOrder">Sort by Payout</label>
+        <h2>Payout per Stream Comparison</h2>
+        <p>Estimated payment to artists for one stream on each platform.</p>
 
-            <select id="sortOrder">
-                <option value="default">Original Order</option>
-                <option value="high">Highest First</option>
-                <option value="low">Lowest First</option>
-            </select>
+        <div class="chart-container">
+            <canvas id="revenueChart"></canvas>
+            <p id="chartMessage" hidden>No platforms match your search.</p>
         </div>
 
-        <button id="resetButton" type="button">
-            Reset Filters
-        </button>
-
-    </div>
-
-    <p id="resultCount" aria-live="polite"></p>
-
-    <div class="table-wrapper">
-        <table id="dataTable">
-
-            <thead>
-                <tr>
-                    <th>Platform</th>
-                    <th>Payout per Stream (USD)</th>
-                    <th>Monthly Users (millions)</th>
-                    <th>Type</th>
-                    <th>Streams for US Monthly Minimum Wage</th>
-                </tr>
-            </thead>
-
-            <tbody></tbody>
-
-        </table>
-    </div>
-
-    <h2>Payout per Stream Comparison</h2>
-
-    <p>
-        Estimated artist payout per stream across music platforms.
-        Use the controls above to explore different results.
-    </p>
-
-    <div class="chart-container">
-        <canvas id="revenueChart"></canvas>
-    </div>
-
-    <p class="source">
-        Data source:
-        <a href="https://artistpayout.com/"
-           target="_blank"
-           rel="noopener noreferrer">
-            Artist Payout
-        </a>
-    </p>
-
+        <p class="source">
+            Data source:
+            <a href="https://artistpayout.com/" target="_blank" rel="noopener noreferrer">
+                Artist Payout
+            </a>
+        </p>
+    </main>
 </body>
 </html>
